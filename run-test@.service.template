@@ -1,0 +1,19 @@
+[Unit]
+Description=Run Test (%I)
+Conflicts=serial-getty@ttyAMA0.service
+Requires=default.target
+After=default.target
+IgnoreOnIsolate=yes
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c "XXX_TEST_ROOT_XXX/%I"
+Restart=no
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/ttyAMA0
+TTYReset=yes
+TTYVHangup=yes
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
