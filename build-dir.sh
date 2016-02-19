@@ -1,7 +1,8 @@
 #!/bin/sh
 #
+NR_CPUS=$(grep -c ^processor /proc/cpuinfo)
 set -e
 cd $1
 make clean
-make -j3
+make -j${NR_CPUS}
 cd -
