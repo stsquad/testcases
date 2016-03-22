@@ -1,0 +1,15 @@
+sudo: false
+language: c
+compiler:
+  - gcc
+  - clang
+cache: ccache
+env:
+    - BUILD="make -j2"
+    - BUILD="make -j3"
+before_install:
+  - df -h
+before_script:
+  - ls -l /tmp
+script:
+  - ${BUILD}
