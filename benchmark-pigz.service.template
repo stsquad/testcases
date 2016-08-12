@@ -1,0 +1,17 @@
+# A benchmark target
+#
+# This shutsdown once the boot has completed
+
+[Unit]
+Description=Default
+Requires=basic.target
+After=basic.target
+AllowIsolate=yes
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "/usr/bin/pigz -c /root/linux-4.5.1.tar > /dev/null"
+ExecStartPost=/sbin/poweroff
+
+[Install]
+WantedBy=multi-user.target

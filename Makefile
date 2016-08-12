@@ -17,6 +17,6 @@ all: $(PROGS) $(UNITS)
 	$(LD) -o $@ $<
 
 # Building systemd units
-%.service: %.service.template
+%.service: %.service.template Makefile
 	sed -e 's|XXX_TEST_ROOT_XXX|'"${PWD}"'|' $< > $@
-	ln -s ${PWD}/$@ /etc/systemd/system
+	ln -f -s ${PWD}/$@ /etc/systemd/system
