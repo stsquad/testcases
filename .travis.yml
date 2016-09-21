@@ -29,5 +29,5 @@ matrix:
       compiler: none
       env:
         - COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
-        - CFLAGS="-fsanitize=thread"
+        - CFLAGS="-fsanitize=thread -fuse-ld=gold"
         - BUILD="make -j2"
