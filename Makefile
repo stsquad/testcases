@@ -7,6 +7,8 @@ PROGS=$(OBJS:.o=)
 UNIT_TEMPLATES=$(wildcard *.service.template)
 UNITS=$(UNIT_TEMPLATES:.template=)
 
+USER=$(shell whoami)
+
 all: $(PROGS) $(UNITS)
 
 # Building C files
@@ -19,4 +21,8 @@ all: $(PROGS) $(UNITS)
 # Building systemd units
 %.service: %.service.template
 	sed -e 's|XXX_TEST_ROOT_XXX|'"${PWD}"'|' $< > $@
+ifeq ($(user,root))
 	ln -s ${PWD}/$@ /etc/systemd/system
+else
+	@echo "Can't install $@ when not root"
+endif
