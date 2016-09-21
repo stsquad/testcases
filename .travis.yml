@@ -11,6 +11,8 @@ before_install:
   - df -h
 before_script:
   - ls -l /tmp
+  - ls -l /usr/bin/gcc*
+  - env
 script:
   - ${BUILD}
 # Additional builds in the matrix
@@ -23,11 +25,20 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             gcc-5
-      language: none
+      language: generic
       compiler: none
       env:
-        - CC=gcc-5
+        - COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
         - BUILD="make -j2"
-      before_script:
-        - ls -l /usr/bin/gcc-*
-        - env
+    - addons:
+        apt:
+          sources:
+            # PPAs for newer toolchains
+            - llvm-toolchain-precise-3.8
+          packages:
+            clang-3.8
+      language: generic
+      compiler: none
+      env:
+        - COMPILER_NAME=clang CXX=clang++-3.8 CC=clang-3.8
+        - BUILD="make -j2"
