@@ -13,3 +13,17 @@ before_script:
   - ls -l /tmp
 script:
   - ${BUILD}
+# Additional builds in the matrix
+matrix:
+  include:
+    - addons:
+        apt:
+          sources:
+            # PPAs for newer toolchains
+            - ubuntu-toolchain-r-test
+          packages:
+            gcc-5
+          before_script:
+            - ls -l /usr/bin/gcc-*
+          script:
+            - CC=gcc-5 make -j2
