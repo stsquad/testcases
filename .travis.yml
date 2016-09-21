@@ -30,3 +30,4 @@ matrix:
         - BUILD="make -j2"
       before_script:
         - ls -l /usr/bin/gcc-*
+        - env
