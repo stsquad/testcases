@@ -1,5 +1,10 @@
-CC:=gcc
-LD:=ld
+#
+# Makefile to build testcases
+#
+
+# Only set these if not already done
+CC ?= gcc
+LD ?= ld
 
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
