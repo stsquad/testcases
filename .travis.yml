@@ -23,7 +23,8 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             gcc-5
-      compiler: gcc
+      language: none
+      compiler: none
       env:
         - CC=gcc-5
         - BUILD="make -j2"
