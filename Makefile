@@ -1,7 +1,7 @@
 CC:=gcc
 LD:=ld
 
-SRCS=$(wilcard *.c)
+SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 PROGS=$(OBJS:.o=)
 UNIT_TEMPLATES=$(wildcard *.service.template)
@@ -9,7 +9,15 @@ UNITS=$(UNIT_TEMPLATES:.template=)
 
 USER=$(shell whoami)
 
+.PHONY: all
 all: $(PROGS) $(UNITS)
+
+.PHONY: clean
+clean:
+	@echo "We have $(SRCS), $(OBJS) and $(PROGS)"
+	rm -f $(PROGS)
+	rm -f $(OBJS)
+	rm -f $(UNITS)
 
 # Building C files
 %.o: %.c
