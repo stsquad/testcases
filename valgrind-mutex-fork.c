@@ -7,6 +7,7 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
+#include <unistd.h>
 
 static pthread_mutex_t the_mutex = PTHREAD_MUTEX_INITIALIZER;
 static __thread int the_mutex_lock_count;
