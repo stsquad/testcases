@@ -14,22 +14,17 @@ UNITS=$(UNIT_TEMPLATES:.template=)
 
 USER=$(shell whoami)
 
+# C files are currently build with default rules
+# which is a single stage compile and link
+
 .PHONY: all
 all: $(PROGS) $(UNITS)
 
 .PHONY: clean
 clean:
-	@echo "We have $(SRCS), $(OBJS) and $(PROGS)"
 	rm -f $(PROGS)
 	rm -f $(OBJS)
 	rm -f $(UNITS)
-
-# Building C files
-%.o: %.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
-
-%: %.o
-	$(LD) -o $@ $<
 
 # Building systemd units
 %.service: %.service.template Makefile
