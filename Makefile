@@ -19,10 +19,10 @@ all: $(PROGS) $(UNITS)
 	$(LD) -o $@ $<
 
 # Building systemd units
-%.service: %.service.template
+%.service: %.service.template Makefile
 	sed -e 's|XXX_TEST_ROOT_XXX|'"${PWD}"'|' $< > $@
 ifeq ($(user,root))
-	ln -s ${PWD}/$@ /etc/systemd/system
+	ln -f -s ${PWD}/$@ /etc/systemd/system
 else
 	@echo "Can't install $@ when not root"
 endif

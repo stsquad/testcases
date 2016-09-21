@@ -1,0 +1,17 @@
+# A benchmark target
+#
+# This shutsdown once the boot has completed
+
+[Unit]
+Description=Default
+Requires=basic.target
+After=basic.target
+AllowIsolate=yes
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+ExecStartPost=/sbin/poweroff
+
+[Install]
+WantedBy=multi-user.target
