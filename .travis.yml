@@ -23,7 +23,10 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             gcc-5
-          before_script:
-            - ls -l /usr/bin/gcc-*
-          script:
-            - CC=gcc-5 make -j2
+      compiler: gcc
+      env:
+        - BUILD="make -j2"
+      before_script:
+        - ls -l /usr/bin/gcc-*
+      script:
+        - CC=gcc-5 ${BUILD}
