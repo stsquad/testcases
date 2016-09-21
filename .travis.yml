@@ -30,15 +30,3 @@ matrix:
       env:
         - COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
         - BUILD="make -j2"
-    - addons:
-        apt:
-          sources:
-            # PPAs for newer toolchains
-            - llvm-toolchain-precise-3.8
-          packages:
-            clang-3.8
-      language: generic
-      compiler: none
-      env:
-        - COMPILER_NAME=clang CXX=clang++-3.8 CC=clang-3.8
-        - BUILD="make -j2"
