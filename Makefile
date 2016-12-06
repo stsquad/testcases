@@ -5,6 +5,7 @@
 # Only set these if not already done
 CC ?= gcc
 LD ?= ld
+CFLAGS=-g3
 
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
