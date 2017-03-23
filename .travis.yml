@@ -12,6 +12,8 @@ before_install:
   - mount
 before_script:
   - ls -l /tmp
+  - ls -l /usr/bin/gcc*
+  - env
 script:
   - ${BUILD}
 # Additional builds in the matrix
@@ -24,10 +26,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             gcc-5
-      compiler: gcc
+      language: generic
+      compiler: none
       env:
+        - COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
+        - CFLAGS="-fsanitize=thread -fuse-ld=gold"
         - BUILD="make -j2"
-      before_script:
-        - ls -l /usr/bin/gcc-*
-      script:
-        - CC=gcc-5 ${BUILD}

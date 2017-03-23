@@ -1,0 +1,5 @@
+# Final objects
+*.service
+compile-test
+migration-stream
+valgrind-mutex-fork

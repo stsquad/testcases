@@ -1,7 +1,13 @@
-CC:=gcc
-LD:=ld
+#
+# Makefile to build testcases
+#
 
-SRCS=$(wilcard *.c)
+# Only set these if not already done
+CC ?= gcc
+LD ?= ld
+CFLAGS=-g3
+
+SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 PROGS=$(OBJS:.o=)
 UNIT_TEMPLATES=$(wildcard *.service.template)
@@ -9,19 +15,22 @@ UNITS=$(UNIT_TEMPLATES:.template=)
 
 USER=$(shell whoami)
 
+# C files are currently build with default rules
+# which is a single stage compile and link
+
+.PHONY: all
 all: $(PROGS) $(UNITS)
 
-# Building C files
-%.o: %.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
-
-%: %.o
-	$(LD) -o $@ $<
+.PHONY: clean
+clean:
+	rm -f $(PROGS)
+	rm -f $(OBJS)
+	rm -f $(UNITS)
 
 # Building systemd units
 %.service: %.service.template Makefile
 	sed -e 's|XXX_TEST_ROOT_XXX|'"${PWD}"'|' $< > $@
-ifeq ($(user,root))
+ifeq ($(user),root)
 	ln -f -s ${PWD}/$@ /etc/systemd/system
 else
 	@echo "Can't install $@ when not root"
