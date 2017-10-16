@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 uint32_t isns[] = {
     0x07e00050,
@@ -15,11 +16,12 @@ uint32_t isns[] = {
 
 #define N_INSNS (sizeof(isns)/sizeof(uint32_t))
 
-void main(int c, char *v)
+int main(int c, char **v)
 {
     int i;
-    printf("We have %d insns\n", N_INSNS);
     for (i=0; i < N_INSNS; i++) {
-        printf("  %02d: 0x%08\n", i, isns[i]);
+        printf("  %02d: %#" PRIx32 "\n", i, isns[i]);
     }
+
+    return 0;
 }
