@@ -15,11 +15,17 @@ UNITS=$(UNIT_TEMPLATES:.template=)
 
 USER=$(shell whoami)
 
+SUBDIRS := $(wildcard */.)
+
+.PHONY: $(SUBDIRS)
+$(SUBDIRS):
+	$(MAKE) -C $@
+
 # C files are currently build with default rules
 # which is a single stage compile and link
 
 .PHONY: all
-all: $(PROGS) $(UNITS)
+all: $(PROGS) $(UNITS) $(SUBDIRS)
 
 .PHONY: clean
 clean:
