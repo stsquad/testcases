@@ -7,6 +7,10 @@ cache: ccache
 env:
     - BUILD="make -j2"
     - BUILD="make -j3"
+addons:
+  apt:
+    packages:
+      - gcc-5-aarch64-linux-gnu
 before_install:
   - df -h
   - mount
