@@ -12,12 +12,13 @@
 
 int main(void)
 {
-    uint8_t *inA, *inB, *out;
+    uint8_t *inA, *inB, *inC, *out;
     time_t start, end;
     int i;
 
     inA = calloc(ALIGNED_OPS, sizeof(uint64_t));
     inB = calloc(ALIGNED_OPS, sizeof(uint64_t));
+    inC = calloc(ALIGNED_OPS, sizeof(uint64_t));
     out = calloc(ALIGNED_OPS, sizeof(uint64_t));
 
     /* Seed inA/B */
@@ -25,14 +26,18 @@ int main(void)
     {
         inA[i] = i % 129;
         inB[i] = i % 126;
+        inC[i] = inA[i] ^ inB[i];
     }
 
     start = time(NULL);
+
     /* Twiddle bits */
     for (i = 0; i < OPS; i++)
     {
-        out[i] = inA[i] ^ inB[i];
+        out[i] = ~(inA[i] | inB[i] & inC[i]);
     }
+
+    end = time(NULL);
 
 
     return 0;
