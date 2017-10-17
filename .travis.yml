@@ -11,6 +11,7 @@ addons:
   apt:
     packages:
       - gcc-aarch64-linux-gnu
+      - libc6-dev-arm64-cross
 before_install:
   - df -h
   - mount
