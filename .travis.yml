@@ -10,7 +10,7 @@ env:
 addons:
   apt:
     packages:
-      - gcc-5-aarch64-linux-gnu
+      - gcc-aarch64-linux-gnu
 before_install:
   - df -h
   - mount
