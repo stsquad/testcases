@@ -13,7 +13,7 @@ else
 	LD = aarch64-linux-gnu-gcc
 endif
 
-CFLAGS=-g3 -O3 -ftree-vectorize -fopt-info
+CFLAGS=-g3 -O3 -ftree-vectorize -fopt-info -fno-unroll-loops -fno-peel-loops
 
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
