@@ -34,7 +34,7 @@ typedef struct {
 static void * get_aligned_block(size_t size)
 {
     void *p;
-    if (!posix_memalign(&p, 16, size)) {
+    if (posix_memalign(&p, 16, size)!=0) {
         fprintf(stderr, "%s: failed to allocate memory\n", __func__);
         abort();
     }
@@ -96,6 +96,54 @@ static unsigned long bit_fiddle_bytes(int64_t *start)
     return (BYTE_OPS * j * 3);
 }
 
+static unsigned long bytewise_xor(int64_t *start)
+{
+    uint8_t *a, *b, *out;
+    unsigned long i, j;
+
+    a = __builtin_assume_aligned(get_data(0x12345678), 16);
+    b = __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Twiddle bits */
+    for (j = 0; j < 256; j++) {
+        for (i = 0; i < BYTE_OPS; i++)
+        {
+            out[i] = a[i] ^ b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (BYTE_OPS * j);
+}
+
+static unsigned long wordwise_xor(int64_t *start)
+{
+    uint16_t *a, *b, *out;
+    unsigned long i, j;
+
+    a = __builtin_assume_aligned(get_data(0x12345678), 16);
+    b = __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Twiddle bits */
+    for (j = 0; j < 256; j++) {
+        for (i = 0; i < WORD_OPS; i++)
+        {
+            out[i] = a[i] ^ b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (WORD_OPS * j);
+}
+
 static unsigned long float32_multiply(int64_t *start)
 {
     float *a, *b, *out;
@@ -107,7 +155,7 @@ static unsigned long float32_multiply(int64_t *start)
 
     *start = get_clock();
 
-    /* Twiddle bits */
+    /* Do multiplies */
     for (j = 0; j < 128; j++) {
         for (i = 0; i < SINGLE_OPS; i++)
         {
@@ -125,6 +173,16 @@ static testdef_t tests[] = {
         .name = "bytewise-bit-fiddle",
         .desc = "add/xor/sub an array of bytes",
         .func = bit_fiddle_bytes
+    },
+    {
+        .name = "bytewise-xor",
+        .desc = "xor array of bytes",
+        .func = bytewise_xor
+    },
+    {
+        .name = "wordwise-xor",
+        .desc = "xor array of words",
+        .func = wordwise_xor
     },
     {
         .name = "float32-mul",
