@@ -17,6 +17,9 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 typedef unsigned long (test_func)(int64_t *start);
+#define math_opt_barrier(x)                                     \
+    ({ __typeof (x) __x = (x); __asm ("" : "+w" (__x)); __x; })
+
 
 typedef struct {
     char        *name;
@@ -28,14 +31,23 @@ typedef struct {
  * vectorisable kernel. The array needs to be nicely aligned to
  * help the vectoriser
  */
-static uint8_t * __attribute__ ((noinline)) get_data(uint32_t seed)
+static void * get_aligned_block(size_t size)
+{
+    void *p;
+    if (!posix_memalign(&p, 16, size)) {
+        fprintf(stderr, "%s: failed to allocate memory\n", __func__);
+        abort();
+    }
+    return p;
+}
+
+static void * __attribute__ ((noinline)) get_data(uint32_t seed)
 {
     unsigned long i;
     long int rseed = random();
-    const int total = BYTE_OPS + 0x100;
-    uint8_t *data = malloc(total * sizeof(uint8_t));
+    uint8_t *data = get_aligned_block(BYTE_OPS * sizeof(uint8_t));
 
-    for (i=0; i < total; i = i + 4)
+    for (i=0; i < BYTE_OPS; i = i + 4)
     {
         data[i]   = ((rseed >>  8) ^ (seed >>  0) ^ i) & 0xff;
         data[i+1] = ((rseed >> 16) ^ (seed >>  8) ^ i) & 0xff;
@@ -46,12 +58,6 @@ static uint8_t * __attribute__ ((noinline)) get_data(uint32_t seed)
     return data;
 }
 
-static inline uint8_t * align_data(uint8_t *data)
-{
-    uintptr_t ptr = (uintptr_t) data;
-    ptr = (ptr + (16 - 1)) & -16;
-    return (uint8_t *) ptr;
-}
 
 static inline int64_t get_clock(void)
 {
@@ -66,10 +72,10 @@ static unsigned long bit_fiddle_bytes(int64_t *start)
     uint8_t *add, *sub, *xor, *out;
     unsigned long i, j;
 
-    add = align_data(get_data(0xABABCDCD));
-    sub = align_data(get_data(0xDEEDBEEF));
-    xor = align_data(get_data(0x7e7e7e7e));
-    out = align_data(malloc((BYTE_OPS + 0x100)*sizeof(uint8_t)));
+    add = __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    sub = __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    xor = __builtin_assume_aligned(get_data(0x7e7e7e7e), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
 
     *start = get_clock();
 
@@ -85,6 +91,8 @@ static unsigned long bit_fiddle_bytes(int64_t *start)
         }
     }
 
+    math_opt_barrier(*out);
+
     return (BYTE_OPS * j * 3);
 }
 
@@ -93,9 +101,9 @@ static unsigned long float32_multiply(int64_t *start)
     float *a, *b, *out;
     unsigned long i, j;
 
-    a = (float *) align_data(get_data(0xABABCDCD));
-    b = (float *) align_data(get_data(0xDEEDBEEF));
-    out = (float *) align_data(malloc((BYTE_OPS + 0x100)*sizeof(uint8_t)));
+    a = (float *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (float *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
 
     *start = get_clock();
 
@@ -106,6 +114,8 @@ static unsigned long float32_multiply(int64_t *start)
             out[i] = a[i] * b[i];
         }
     }
+
+    math_opt_barrier(*out);
 
     return (SINGLE_OPS * j);
 }
