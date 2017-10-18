@@ -1,5 +1,5 @@
 /*
- * Test kernel, for vectorising
+ * Test kernels, for vectorising
  */
 
 #include <stdlib.h>
@@ -28,7 +28,7 @@ typedef struct {
  * vectorisable kernel. The array needs to be nicely aligned to
  * help the vectoriser
  */
-static uint8_t * get_data(uint32_t seed)
+static uint8_t * __attribute__ ((noinline)) get_data(uint32_t seed)
 {
     unsigned long i;
     long int rseed = random();
@@ -49,7 +49,7 @@ static uint8_t * get_data(uint32_t seed)
 static inline uint8_t * align_data(uint8_t *data)
 {
     uintptr_t ptr = (uintptr_t) data;
-    ptr = (ptr + (8 - 1)) & -8;
+    ptr = (ptr + (16 - 1)) & -16;
     return (uint8_t *) ptr;
 }
 
@@ -72,7 +72,7 @@ static unsigned long bit_fiddle_bytes(void)
     out = align_data(malloc((BYTE_OPS + 0x100)*sizeof(uint8_t)));
 
     /* Twiddle bits */
-    for (j = 0; j < 100; j++) {
+    for (j = 0; j < 256; j++) {
         for (i = 0; i < BYTE_OPS; i++)
         {
             uint8_t value = 0;
@@ -86,11 +86,36 @@ static unsigned long bit_fiddle_bytes(void)
     return (BYTE_OPS * j * 3);
 }
 
+static unsigned long float32_multiply(void)
+{
+    float *a, *b, *out;
+    unsigned long i, j;
+
+    a = (float *) align_data(get_data(0xABABCDCD));
+    b = (float *) align_data(get_data(0xDEEDBEEF));
+    out = (float *) align_data(malloc((BYTE_OPS + 0x100)*sizeof(uint8_t)));
+
+    /* Twiddle bits */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < SINGLE_OPS; i++)
+        {
+            out[i] = a[i] * b[i];
+        }
+    }
+
+    return (SINGLE_OPS * j);
+}
+
 static testdef_t tests[] = {
     {
         .name = "bytewise-bit-fiddle",
         .desc = "add/xor/sub an array of bytes",
         .func = bit_fiddle_bytes
+    },
+    {
+        .name = "float32-mul",
+        .desc = "floating point multiply an array of singles",
+        .func = float32_multiply
     },
 };
 
@@ -113,7 +138,8 @@ void usage(void) {
     fprintf(stderr, "Usage: vector-benchmark -b <testname>\n\n");
     fprintf(stderr, "Tests:\n");
     for (i = 0; i<ARRAY_SIZE(tests); i++) {
-        fprintf(stderr, "%30s: %s\n", tests[i].name, tests[i].desc);
+        fprintf(stderr, "%s: %s (%p)\n",
+                tests[i].name, tests[i].desc, tests[i].func);
     }
 }
 
