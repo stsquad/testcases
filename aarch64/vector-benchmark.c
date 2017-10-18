@@ -16,7 +16,7 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-typedef unsigned long (test_func)(void);
+typedef unsigned long (test_func)(int64_t *start);
 
 typedef struct {
     char        *name;
@@ -61,7 +61,7 @@ static inline int64_t get_clock(void)
 }
 
 /* Tests */
-static unsigned long bit_fiddle_bytes(void)
+static unsigned long bit_fiddle_bytes(int64_t *start)
 {
     uint8_t *add, *sub, *xor, *out;
     unsigned long i, j;
@@ -70,6 +70,8 @@ static unsigned long bit_fiddle_bytes(void)
     sub = align_data(get_data(0xDEEDBEEF));
     xor = align_data(get_data(0x7e7e7e7e));
     out = align_data(malloc((BYTE_OPS + 0x100)*sizeof(uint8_t)));
+
+    *start = get_clock();
 
     /* Twiddle bits */
     for (j = 0; j < 256; j++) {
@@ -86,7 +88,7 @@ static unsigned long bit_fiddle_bytes(void)
     return (BYTE_OPS * j * 3);
 }
 
-static unsigned long float32_multiply(void)
+static unsigned long float32_multiply(int64_t *start)
 {
     float *a, *b, *out;
     unsigned long i, j;
@@ -94,6 +96,8 @@ static unsigned long float32_multiply(void)
     a = (float *) align_data(get_data(0xABABCDCD));
     b = (float *) align_data(get_data(0xDEEDBEEF));
     out = (float *) align_data(malloc((BYTE_OPS + 0x100)*sizeof(uint8_t)));
+
+    *start = get_clock();
 
     /* Twiddle bits */
     for (j = 0; j < 128; j++) {
@@ -186,8 +190,8 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    start = get_clock();
-    ops = test->func();
+    /* start = get_clock(); called by test after setup */
+    ops = test->func(&start);
     end = get_clock();
 
     elapsed = end - start;
