@@ -25,3 +25,6 @@ all: $(PROGS)
 .PHONY: clean
 clean:
 	rm -f $(PROGS)
+
+# Special cases
+fminmaxv: CFLAGS+=-march=armv8.2-a+fp16
