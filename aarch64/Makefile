@@ -13,9 +13,15 @@ else
 	LD = aarch64-linux-gnu-gcc
 endif
 
+GCC_VERSION=$(shell gcc -dumpversion)
 CFLAGS=-g3 -O3 -ftree-vectorize -fopt-info
 
+ifneq ("7", $(patsubst .*, $(GCC_VERSION), ""))
+SRCS=$(filter-out fminmaxv.c, $(wildcard *.c))
+else
 SRCS=$(wildcard *.c)
+endif
+
 OBJS=$(SRCS:.c=.o)
 PROGS=$(OBJS:.o=)
 
