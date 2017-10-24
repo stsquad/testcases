@@ -69,9 +69,10 @@ static inline int64_t get_clock(void)
 /* Tests */
 static unsigned long bit_fiddle_bytes(int64_t *start)
 {
-    uint8_t *add, *sub, *xor, *out;
+    uint8_t *and, *add, *sub, *xor, *out;
     unsigned long i, j;
 
+    and = __builtin_assume_aligned(get_data(0x1248a33a), 16);
     add = __builtin_assume_aligned(get_data(0xABABCDCD), 16);
     sub = __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
     xor = __builtin_assume_aligned(get_data(0x7e7e7e7e), 16);
@@ -83,7 +84,8 @@ static unsigned long bit_fiddle_bytes(int64_t *start)
     for (j = 0; j < 256; j++) {
         for (i = 0; i < BYTE_OPS; i++)
         {
-            uint8_t value = 0;
+            uint8_t value = out[i];
+            value |= i & and[i];
             value += add[i];
             value ^= xor[i];
             value -= sub[i];
@@ -93,7 +95,7 @@ static unsigned long bit_fiddle_bytes(int64_t *start)
 
     math_opt_barrier(*out);
 
-    return (BYTE_OPS * j * 3);
+    return (BYTE_OPS * j * 5);
 }
 
 static unsigned long bytewise_xor(int64_t *start)
