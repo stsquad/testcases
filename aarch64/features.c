@@ -11,10 +11,15 @@
 int main(void)
 {
 
+#if !defined(HWCAP_CPUID)
+    fputs("HWCAP_CPUID unavailable\n", stderr);
+    return 1;
+#else
         if (!(getauxval(AT_HWCAP) & HWCAP_CPUID)) {
                 fputs("CPUID registers unavailable\n", stderr);
                 return 1;
         }
+#endif
 
         get_cpu_ftr(ID_AA64ISAR0_EL1);
         get_cpu_ftr(ID_AA64ISAR1_EL1);
