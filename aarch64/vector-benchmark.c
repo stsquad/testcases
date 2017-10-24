@@ -20,6 +20,7 @@ typedef unsigned long (test_func)(int64_t *start);
 #define math_opt_barrier(x)                                     \
     ({ __typeof (x) __x = (x); __asm ("" : "+w" (__x)); __x; })
 
+volatile uint64_t dump;
 
 typedef struct {
     char        *name;
@@ -122,6 +123,26 @@ static unsigned long bytewise_xor(int64_t *start)
     return (BYTE_OPS * j);
 }
 
+static unsigned long bytewise_xor_stream(int64_t *start)
+{
+    uint8_t *a, out = 0;
+    unsigned long i, j;
+
+    a = __builtin_assume_aligned(get_data(0x12345678), 16);
+
+    *start = get_clock();
+
+    for (i = 0; i < BYTE_OPS; i++)
+    {
+        out ^= a[i];
+    }
+
+    math_opt_barrier(out);
+    dump = out;
+
+    return (BYTE_OPS);
+}
+
 static unsigned long wordwise_xor(int64_t *start)
 {
     uint16_t *a, *b, *out;
@@ -178,8 +199,13 @@ static testdef_t tests[] = {
     },
     {
         .name = "bytewise-xor",
-        .desc = "xor array of bytes",
+        .desc = "xor two array of bytes",
         .func = bytewise_xor
+    },
+    {
+        .name = "bytewise-xor-stream",
+        .desc = "xor array of bytes",
+        .func = bytewise_xor_stream
     },
     {
         .name = "wordwise-xor",
