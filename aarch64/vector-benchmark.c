@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <getopt.h>
+#include <stdbool.h>
 
 #define BYTE_OPS     (1<<22)
 #define WORD_OPS     (BYTE_OPS/2)
@@ -235,7 +236,8 @@ testdef_t * get_test(char *name) {
 void usage(void) {
     int i;
 
-    fprintf(stderr, "Usage: vector-benchmark -b <testname>\n\n");
+    fprintf(stderr, "Usage: vector-benchmark [-n [total]] -b <testname>\n\n");
+    fprintf(stderr, "  -n - numbers only\n");
     fprintf(stderr, "Tests:\n");
     for (i = 0; i<ARRAY_SIZE(tests); i++) {
         fprintf(stderr, "%s: %s (%p)\n",
@@ -248,15 +250,18 @@ int main(int argc, char **argv)
     int64_t start, end, elapsed;
     unsigned long ops;
     testdef_t *test;
+    bool numbers = false;
+    bool total_time = false;
 
     for (;;) {
         static struct option longopts[] = {
             {"help", no_argument, 0, '?'},
+            {"numbers", optional_argument, 0, 'n'},
             {"benchmark", required_argument, 0, 'b'},
             {0, 0, 0, 0}
         };
         int optidx = 0;
-        int c = getopt_long(argc, argv, "hb:", longopts, &optidx);
+        int c = getopt_long(argc, argv, "hb:n::", longopts, &optidx);
         if (c == -1) {
             break;
         }
@@ -270,6 +275,11 @@ int main(int argc, char **argv)
             case 'b':
             {
                 test = get_test(optarg);
+                break;
+            }
+            case 'n':
+            {
+                numbers = true;
                 break;
             }
             case 'h':
@@ -292,8 +302,12 @@ int main(int argc, char **argv)
 
     elapsed = end - start;
 
-    fprintf(stdout, "%-20s: test took %ld msec\n", test->name, elapsed/1000);
-    fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop", "", ops, elapsed/(ops/1000));
+    if (numbers) {
+        fprintf(stdout, "%ld\n", elapsed/(ops/1000));
+    } else {
+        fprintf(stdout, "%-20s: test took %ld msec\n", test->name, elapsed/1000);
+        fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop", "", ops, elapsed/(ops/1000));
+    }
 
     return 0;
 }

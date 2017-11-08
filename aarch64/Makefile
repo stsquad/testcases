@@ -14,7 +14,7 @@ else
 endif
 
 GCC_VERSION=$(shell gcc -dumpversion)
-CFLAGS=-g3 -O3 -ftree-vectorize -fopt-info
+CFLAGS=-g3 -O3 -ftree-vectorize -fopt-info -static
 
 ifneq ("7", $(patsubst .*, $(GCC_VERSION), ""))
 SRCS=$(filter-out fminmaxv.c, $(wildcard *.c))
