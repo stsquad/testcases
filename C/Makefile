@@ -13,3 +13,4 @@ all: $(PROGS)
 .PHONY: clean
 clean:
 	rm -f $(PROGS)
+	rm -f $(OBJS)

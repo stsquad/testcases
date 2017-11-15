@@ -16,6 +16,7 @@ UNITS=$(UNIT_TEMPLATES:.template=)
 USER=$(shell whoami)
 
 SUBDIRS := $(wildcard */.)
+SUBDIRSCLEAN=$(addsuffix -clean,$(SUBDIRS))
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):
@@ -28,10 +29,13 @@ $(SUBDIRS):
 all: $(PROGS) $(UNITS) $(SUBDIRS)
 
 .PHONY: clean
-clean:
+clean: $(SUBDIRSCLEAN)
 	rm -f $(PROGS)
 	rm -f $(OBJS)
 	rm -f $(UNITS)
+
+%-clean: %
+	$(MAKE) -C $< clean
 
 # Building systemd units
 %.service: %.service.template Makefile
