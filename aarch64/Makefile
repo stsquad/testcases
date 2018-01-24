@@ -25,12 +25,20 @@ endif
 OBJS=$(SRCS:.c=.o)
 PROGS=$(OBJS:.o=)
 
+HAVE_CC := $(shell command -v $(CC) 2> /dev/null)
+
 .PHONY: all
+ifndef HAVE_CC
+all:
+    $(info "skipping build for AArch64 binaries")
+else
 all: $(PROGS)
+endif
 
 .PHONY: clean
 clean:
 	rm -f $(PROGS)
+	rm -f $(OBJS)
 
 # Special cases
 fminmaxv: CFLAGS+=-march=armv8.2-a+fp16
