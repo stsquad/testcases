@@ -28,7 +28,7 @@ PROGS=$(OBJS:.o=)
 # Compiler variants
 PROGS+=vector-benchmark-tree-vec
 vector-benchmark-tree-vec: vector-benchmark.c
-	$(CC) $(CFLAGS) -g3 -O3 -static -ftree-vectorize -fopt-info $< -o $@
+	$(CC) $(CFLAGS) -g3 -O3 -static -ftree-vectorize $< -o $@
 
 PROGS+=vector-benchmark-funroll
 vector-benchmark-funroll: vector-benchmark.c
