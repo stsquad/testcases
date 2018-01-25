@@ -5,8 +5,8 @@ compiler:
   - clang
 cache: ccache
 env:
-    - BUILD="make -j2"
-    - BUILD="make -j3"
+    - BUILD="make -j2 all"
+    - BUILD="make -j3 all"
 addons:
   apt:
     packages:
@@ -37,4 +37,4 @@ matrix:
       env:
         - COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
         - CFLAGS="-fsanitize=thread -fuse-ld=gold"
-        - BUILD="make -j2"
+        - BUILD="make -j2 all"
