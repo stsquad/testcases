@@ -397,9 +397,9 @@ static testdef_t tests[] = {
         .func = float32_multiply
     },
     {
-        .name = "float64-div",
-        .desc = "floating point divide an array of doubles",
-        .func = float64_divide
+        .name = "float32-div",
+        .desc = "floating point divide an array of singles",
+        .func = float32_divide
     },
     {
         .name = "float64-add",
