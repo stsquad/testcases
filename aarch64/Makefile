@@ -30,6 +30,11 @@ PROGS+=vector-benchmark-tree-vec
 vector-benchmark-tree-vec: vector-benchmark.c
 	$(CC) $(CFLAGS) -g3 -O3 -static -ftree-vectorize -fopt-info $< -o $@
 
+PROGS+=vector-benchmark-funroll
+vector-benchmark-funroll: vector-benchmark.c
+	echo $(PROGS)
+	$(CC) $(CFLAGS) -g3 -O3 -static -funroll-loops $< -o $@
+
 HAVE_CC := $(shell command -v $(CC) 2> /dev/null)
 
 .PHONY: all
