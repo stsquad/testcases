@@ -168,6 +168,150 @@ static unsigned long wordwise_xor(int64_t *start)
     return (WORD_OPS * j);
 }
 
+static unsigned long float64_add(int64_t *start)
+{
+    double *a, *b, *out;
+    unsigned long i, j;
+
+    a = (double *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (double *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do multiplies */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < DOUBLE_OPS; i++)
+        {
+            out[i] = a[i] + b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (DOUBLE_OPS * j);
+}
+
+static unsigned long float64_sub(int64_t *start)
+{
+    double *a, *b, *out;
+    unsigned long i, j;
+
+    a = (double *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (double *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do multiplies */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < DOUBLE_OPS; i++)
+        {
+            out[i] = a[i] - b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (DOUBLE_OPS * j);
+}
+
+static unsigned long float64_multiply(int64_t *start)
+{
+    double *a, *b, *out;
+    unsigned long i, j;
+
+    a = (double *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (double *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do multiplies */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < DOUBLE_OPS; i++)
+        {
+            out[i] = a[i] * b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (DOUBLE_OPS * j);
+}
+
+static unsigned long float64_divide(int64_t *start)
+{
+    double *a, *b, *out;
+    unsigned long i, j;
+
+    a = (double *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (double *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do multiplies */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < DOUBLE_OPS; i++)
+        {
+            out[i] = a[i] / b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (DOUBLE_OPS * j);
+}
+
+static unsigned long float32_add(int64_t *start)
+{
+    float *a, *b, *out;
+    unsigned long i, j;
+
+    a = (float *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (float *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do multiplies */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < SINGLE_OPS; i++)
+        {
+            out[i] = a[i] + b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (SINGLE_OPS * j);
+}
+
+static unsigned long float32_sub(int64_t *start)
+{
+    float *a, *b, *out;
+    unsigned long i, j;
+
+    a = (float *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (float *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do multiplies */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < SINGLE_OPS; i++)
+        {
+            out[i] = a[i] - b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (SINGLE_OPS * j);
+}
+
 static unsigned long float32_multiply(int64_t *start)
 {
     float *a, *b, *out;
@@ -184,6 +328,30 @@ static unsigned long float32_multiply(int64_t *start)
         for (i = 0; i < SINGLE_OPS; i++)
         {
             out[i] = a[i] * b[i];
+        }
+    }
+
+    math_opt_barrier(*out);
+
+    return (SINGLE_OPS * j);
+}
+
+static unsigned long float32_divide(int64_t *start)
+{
+    float *a, *b, *out;
+    unsigned long i, j;
+
+    a = (float *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    b = (float *) __builtin_assume_aligned(get_data(0xDEEDBEEF), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do multiplies */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < SINGLE_OPS; i++)
+        {
+            out[i] = a[i] / b[i];
         }
     }
 
@@ -214,9 +382,44 @@ static testdef_t tests[] = {
         .func = wordwise_xor
     },
     {
+        .name = "float32-add",
+        .desc = "floating point add an array of singles",
+        .func = float32_add
+    },
+    {
+        .name = "float32-sub",
+        .desc = "floating point sub an array of singles",
+        .func = float32_sub
+    },
+    {
         .name = "float32-mul",
         .desc = "floating point multiply an array of singles",
         .func = float32_multiply
+    },
+    {
+        .name = "float64-div",
+        .desc = "floating point divide an array of doubles",
+        .func = float64_divide
+    },
+    {
+        .name = "float64-add",
+        .desc = "floating point add an array of doubles",
+        .func = float64_add
+    },
+    {
+        .name = "float64-sub",
+        .desc = "floating point sub an array of doubles",
+        .func = float64_sub
+    },
+    {
+        .name = "float64-mul",
+        .desc = "floating point multiply an array of doubles",
+        .func = float64_multiply
+    },
+    {
+        .name = "float64-div",
+        .desc = "floating point divide an array of doubles",
+        .func = float64_divide
     },
 };
 
@@ -306,7 +509,7 @@ int main(int argc, char **argv)
         fprintf(stdout, "%ld\n", elapsed/(ops/1000));
     } else {
         fprintf(stdout, "%-20s: test took %ld msec\n", test->name, elapsed/1000);
-        fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop", "", ops, elapsed/(ops/1000));
+        fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop\n", "", ops, elapsed/(ops/1000));
     }
 
     return 0;
