@@ -14,7 +14,7 @@ else
 endif
 
 GCC_VERSION=$(shell gcc -dumpversion)
-CFLAGS=-g3 -O3 -ftree-vectorize -fopt-info -static
+CFLAGS=-g3 -O3 -static
 
 ifneq ("7", $(patsubst .*, $(GCC_VERSION), ""))
 SRCS=$(filter-out fminmaxv.c, $(wildcard *.c))
@@ -24,6 +24,11 @@ endif
 
 OBJS=$(SRCS:.c=.o)
 PROGS=$(OBJS:.o=)
+
+# Compiler variants
+PROGS+=vector-benchmark-tree-vec
+vector-benchmark-tree-vec: vector-benchmark.c
+	$(CC) $(CFLAGS) -g3 -O3 -static -ftree-vectorize -fopt-info $< -o $@
 
 HAVE_CC := $(shell command -v $(CC) 2> /dev/null)
 
@@ -42,3 +47,4 @@ clean:
 
 # Special cases
 fminmaxv: CFLAGS+=-march=armv8.2-a+fp16
+
