@@ -1,0 +1,3 @@
+This contains gcc tests cases, i.e. the minimal piece of code to
+trigger a compiler bug. They are all built by hand and ignore the make
+machinery.
