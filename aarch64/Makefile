@@ -32,8 +32,16 @@ vector-benchmark-tree-vec: vector-benchmark.c
 
 PROGS+=vector-benchmark-funroll
 vector-benchmark-funroll: vector-benchmark.c
-	echo $(PROGS)
 	$(CC) $(CFLAGS) -g3 -O3 -static -funroll-loops $< -o $@
+
+GCC8 := $(shell command -v gcc-8 2> /dev/null)
+ifndef GCC8
+$(info "skipping SVE enabled build")
+else
+PROGS+=vector-benchmark-sve
+vector-benchmark-sve: vector-benchmark.c
+	gcc-8 $(CFLAGS) -g3 -O3 -static -march=armv8.2-a+sve $< -o $@
+endif
 
 HAVE_CC := $(shell command -v $(CC) 2> /dev/null)
 
