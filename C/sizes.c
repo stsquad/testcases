@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     one_bool_struct one_struct;
     two_bool_struct two_struct;
 
-    fprintf(stderr,"%s: %lu bytes (x1 struct=%lu, x2 struct=%lu)\n",
+    fprintf(stderr,"%s: %lu bytes (x1 bool struct=%lu, x2 bool struct=%lu)\n",
             __func__, sizeof(bool), sizeof(one_struct), sizeof(two_struct));
 
 
