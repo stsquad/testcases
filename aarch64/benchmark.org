@@ -1,0 +1,165 @@
+#+TITLE: Benchmarking Notes
+
+This contains notes on running benchmarks on these binaries. Generally
+this is test the speed of QEMU and it's emulation code.
+
+* Binaries To Test
+
+Here we have several tables of binaries to test. We refer to the
+current benchmarking set from the next stage, Run Benchmark.
+
+For a final test we might compare the system QEMU with a reference
+build as well as our current build.
+
+#+name: final-test
+| Binary                                                                       | title            |
+|------------------------------------------------------------------------------+------------------|
+| /usr/bin/qemu-aarch64                                                        | system-2.5.log   |
+| ~/lsrc/qemu/qemu-builddirs/arm-targets.build/aarch64-linux-user/qemu-aarch64 | master.log       |
+| ~/lsrc/qemu/qemu.git/aarch64-linux-user/qemu-aarch64                         | softfloat-v4.log |
+
+We might want to copy QEMU across at the start of each patch we
+re-factor so we can cleanly test without getting lost in the changes
+of a large series.
+
+#+name: current-vs-master
+| Binary                                                                       | title           |
+|------------------------------------------------------------------------------+-----------------|
+| ~/lsrc/qemu/qemu.git/aarch64-linux-user/qemu-aarch64.start                   | baseline.log    |
+| ~/lsrc/qemu/qemu.git/aarch64-linux-user/qemu-aarch64                         | development.log |
+| ~/lsrc/qemu/qemu-builddirs/arm-targets.build/aarch64-linux-user/qemu-aarch64 | master.log      |
+
+In fact while developing we can just keep running against the current
+build and comparing against previously recorded logs.
+
+#+name: current
+| Binary                                                                       | title           |
+|------------------------------------------------------------------------------+-----------------|
+| ~/lsrc/qemu/qemu.git/aarch64-linux-user/qemu-aarch64                         | development.log |
+
+* Run Benchmark
+:PROPERTIES:
+:header-args: :var files=final-test :var tests="float32-add float64-add float32-mul float64-mul float32-div float64-div"
+:END:
+
+This runs the benchmark against each binary we have selected above.
+
+#+name: compare-qemu-binaries
+#+header: :var workbook=(file-name-directory (buffer-file-name))
+#+begin_src python :async
+  import subprocess
+  import os
+
+  runs=[]
+
+  for qemu,logname in files:
+     cmd="taskset -c 0 %s ./vector-benchmark -n %s | tee %s" % (qemu, tests, logname)
+     subprocess.call(cmd, shell=True)
+     runs.append(logname)
+
+  return runs
+#+end_src
+
+#+RESULTS: compare-qemu-binaries
+| system-2.5.log | master.log | softfloat-v4.log |
+
+* Graph Results
+:PROPERTIES:
+:header-args: :var data=final-test[,1]
+:END:
+
+Before we graph the results we need to import the data from the run
+into a table of data we can now feed into gnuplot.
+
+For later processing we need a simple count of the number of tests we
+actually ran. We could calculate this from the variable tests in Run
+Benchmark but it is just as simple to count the lines of output.
+
+#+name: get-ntests
+#+begin_src shell
+cat $data | wc -l
+#+end_src
+
+This fragment munges the run data (which we did asynchronously) into the
+org-mode table from which we can then use to feed gnuplot.
+
+#+name: import-runs-into-table
+#+begin_src python :var ntests=get-ntests()
+
+  nruns = len(data)
+
+  table = [[0 for x in range(nruns+1)] for y in range(ntests+1)]
+  table[0][0] = "test/run"
+
+  for logfile, col in zip(data, xrange(1, nruns+1)):
+       table[0][col] = "%s" % (logfile.rstrip(".log"))
+       with open(logfile) as f:
+            row = xrange(1, ntests+1)
+            for row, line in enumerate(f, 1):
+               (test,result) = line.split(",")
+               table[row][0] = test
+               table[row][col] = result.rstrip()
+
+  return table
+#+end_src
+
+#+tblname: results
+#+RESULTS: import-runs-into-table
+| test/run    | system-2.5 | master | softfloat-v4 |
+| float32-add |      10479 |  10568 |        11823 |
+| float64-add |      11842 |  11716 |        11486 |
+| float32-mul |       8964 |   8451 |        10799 |
+| float64-mul |      11067 |  10963 |        11463 |
+| float32-div |      15829 |  14967 |        36335 |
+| float64-div |      27976 |  27418 |        39040 |
+
+#+name: plot-results
+#+begin_src gnuplot :var data=results :results output :file benchmark.png
+set title "Vector Benchmark Results (lower is better)"
+set style data histograms
+set style fill solid 1.0 border lt -1
+
+set xtics rotate by 90 right
+set yrange [:]
+set xlabel noenhanced
+set ylabel "nsecs/Kop" noenhanced
+set xtics noenhanced
+set ytics noenhanced
+set boxwidth 1
+set xtics format ""
+set xtics scale 0
+set grid ytics
+set term pngcairo size 1200,500
+
+plot for [i=2:5] data using i:xtic(1) title columnhead
+#+end_src
+
+#+RESULTS: plot-results
+[[file:benchmark.png]]
+
+* Upload PNG
+
+#+name: upload-to-imgur
+#+header: :var output=plot-results()
+#+begin_src restclient
+:client_id = fd2da649643c743
+
+# Upload images to imgur
+POST https://api.imgur.com/3/image
+Authorization: Client-ID :client_id
+Content-type: image/png
+
+< benchmark.png
+#+end_src
+
+#+name: post-to-imgur
+#+begin_src emacs-lisp :var json-string=upload-to-imgur()
+  (when (string-match
+         (rx "link" (one-or-more (any "\":" whitespace))
+             (group (one-or-more (not (any "\"")))))
+         json-string)
+    (match-string 1 json-string))
+#+end_src
+
+#+RESULTS: post-to-imgur
+: https://i.imgur.com/KMWceo8.png
