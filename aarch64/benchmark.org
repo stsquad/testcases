@@ -113,6 +113,9 @@ org-mode table from which we can then use to feed gnuplot.
 | float32-div |      15829 |  14967 |        36335 |
 | float64-div |      27976 |  27418 |        39040 |
 
+Finally with the results nicely tabulated we can call GNUPlot with the
+data to plot our nice bar charts.
+
 #+name: plot-results
 #+begin_src gnuplot :var data=results :results output :file benchmark.png
 set title "Vector Benchmark Results (lower is better)"
@@ -139,6 +142,10 @@ plot for [i=2:5] data using i:xtic(1) title columnhead
 
 * Upload PNG
 
+This is a simple restful script to upload to imgur. While restful-mode
+is intended for live checking of REST APIs it can easily be embedded
+in an org-babel source block.
+
 #+name: upload-to-imgur
 #+header: :var output=plot-results()
 #+begin_src restclient
@@ -151,6 +158,9 @@ Content-type: image/png
 
 < benchmark.png
 #+end_src
+
+This is a simple helper function to call the above code but strip out
+the URL so you don't need to hunt through all the headers.
 
 #+name: post-to-imgur
 #+begin_src emacs-lisp :var json-string=upload-to-imgur()
