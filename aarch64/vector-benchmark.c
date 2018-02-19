@@ -455,16 +455,16 @@ int main(int argc, char **argv)
     testdef_t *test;
     bool numbers = false;
     bool total_time = false;
+    int i;
 
     for (;;) {
         static struct option longopts[] = {
             {"help", no_argument, 0, '?'},
             {"numbers", optional_argument, 0, 'n'},
-            {"benchmark", required_argument, 0, 'b'},
             {0, 0, 0, 0}
         };
         int optidx = 0;
-        int c = getopt_long(argc, argv, "hb:n::", longopts, &optidx);
+        int c = getopt_long(argc, argv, "hn", longopts, &optidx);
         if (c == -1) {
             break;
         }
@@ -473,11 +473,6 @@ int main(int argc, char **argv)
             case 0:
             {
                 /* flag set by getopt_long, do nothing */
-                break;
-            }
-            case 'b':
-            {
-                test = get_test(optarg);
                 break;
             }
             case 'n':
@@ -494,22 +489,27 @@ int main(int argc, char **argv)
         }
     }
 
-    if (!test) {
-        fprintf(stderr, "No test specified!\n");
+    if (optind >= argc) {
+        fprintf(stderr, "No tests specified!\n");
         exit(1);
     }
 
-    /* start = get_clock(); called by test after setup */
-    ops = test->func(&start);
-    end = get_clock();
+    for (i = optind; i < argc; i++)
+    {
+        test = get_test(argv[i]);
 
-    elapsed = end - start;
+        /* start = get_clock(); called by test after setup */
+        ops = test->func(&start);
+        end = get_clock();
 
-    if (numbers) {
-        fprintf(stdout, "%ld\n", elapsed/(ops/1000));
-    } else {
-        fprintf(stdout, "%-20s: test took %ld msec\n", test->name, elapsed/1000);
-        fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop\n", "", ops, elapsed/(ops/1000));
+        elapsed = end - start;
+
+        if (numbers) {
+            fprintf(stdout, "%s, %ld\n", test->name, elapsed/(ops/1000));
+        } else {
+            fprintf(stdout, "%-20s: test took %ld msec\n", test->name, elapsed/1000);
+            fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop\n", "", ops, elapsed/(ops/1000));
+        }
     }
 
     return 0;
