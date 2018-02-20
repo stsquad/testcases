@@ -18,10 +18,6 @@ USER=$(shell whoami)
 SUBDIRS := $(wildcard */.)
 SUBDIRSCLEAN=$(addsuffix -clean,$(SUBDIRS))
 
-.PHONY: $(SUBDIRS)
-$(SUBDIRS):
-	$(MAKE) -C $@
-
 # C files are currently build with default rules
 # which is a single stage compile and link
 
@@ -36,6 +32,10 @@ clean: $(SUBDIRSCLEAN)
 
 %-clean: %
 	$(MAKE) -C $< clean
+
+.PHONY: $(SUBDIRS)
+$(SUBDIRS):
+	$(MAKE) -C $@
 
 # Building systemd units
 %.service: %.service.template Makefile
