@@ -9,6 +9,7 @@
 #include <time.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define BYTE_OPS     (1<<22)
 #define WORD_OPS     (BYTE_OPS/2)
@@ -360,6 +361,54 @@ static unsigned long float32_divide(int64_t *start)
     return (SINGLE_OPS * j);
 }
 
+static unsigned long float32_sqrt(int64_t *start)
+{
+    float *in, *out;
+    unsigned long i, j;
+
+    in = (float *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do square-root */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < SINGLE_OPS; i++)
+        {
+            out[i] = __builtin_sqrt(in[i]);
+        }
+        math_opt_barrier(*out);
+    }
+
+    math_opt_barrier(*out);
+
+    return (SINGLE_OPS * j);
+}
+
+static unsigned long float64_sqrt(int64_t *start)
+{
+    double *in, *out;
+    unsigned long i, j;
+
+    in = (double *) __builtin_assume_aligned(get_data(0xABABCDCD), 16);
+    out = __builtin_assume_aligned(get_aligned_block(BYTE_OPS * sizeof(uint8_t)), 16);
+
+    *start = get_clock();
+
+    /* Do square-root */
+    for (j = 0; j < 128; j++) {
+        for (i = 0; i < DOUBLE_OPS; i++)
+        {
+            out[i] = __builtin_sqrt(in[i]);
+        }
+        math_opt_barrier(*out);
+    }
+
+    math_opt_barrier(*out);
+
+    return (DOUBLE_OPS * j);
+}
+
 static testdef_t tests[] = {
     {
         .name = "bytewise-bit-fiddle",
@@ -420,6 +469,16 @@ static testdef_t tests[] = {
         .name = "float64-div",
         .desc = "floating point divide an array of doubles",
         .func = float64_divide
+    },
+    {
+        .name = "float32-sqrt",
+        .desc = "floating point sqrt an array of singles",
+        .func = float32_sqrt
+    },
+    {
+        .name = "float64-sqrt",
+        .desc = "floating point sqrt an array of doubles",
+        .func = float64_sqrt
     },
 };
 
