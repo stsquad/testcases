@@ -16,6 +16,8 @@ endif
 GCC_VERSION=$(shell gcc -dumpversion)
 CFLAGS=-g3 -O3 -static
 
+HAVE_CC := $(shell command -v $(CC) 2> /dev/null)
+
 ifneq ("7", $(patsubst .*, $(GCC_VERSION), ""))
 SRCS=$(filter-out fminmaxv.c, $(wildcard *.c))
 else
@@ -24,6 +26,14 @@ endif
 
 OBJS=$(SRCS:.c=.o)
 PROGS=$(OBJS:.o=)
+
+.PHONY: all
+ifndef HAVE_CC
+all:
+    $(info "skipping build for AArch64 binaries")
+else
+all: $(PROGS)
+endif
 
 # Compiler variants
 PROGS+=vector-benchmark-tree-vec
@@ -41,16 +51,6 @@ else
 PROGS+=vector-benchmark-sve
 vector-benchmark-sve: vector-benchmark.c
 	gcc-8 $(CFLAGS) -g3 -O3 -static -march=armv8.2-a+sve $< -o $@
-endif
-
-HAVE_CC := $(shell command -v $(CC) 2> /dev/null)
-
-.PHONY: all
-ifndef HAVE_CC
-all:
-    $(info "skipping build for AArch64 binaries")
-else
-all: $(PROGS)
 endif
 
 .PHONY: clean
