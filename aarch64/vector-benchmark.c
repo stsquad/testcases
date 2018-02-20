@@ -558,7 +558,7 @@ int main(int argc, char **argv)
         test = get_test(argv[i]);
 
         if (!test) {
-            fprintf(stderr,"%s: failed to find test\n", __func__, argv[i]);
+            fprintf(stderr,"%s: failed to find test: %s\n", __func__, argv[i]);
             abort();
         } else {
             /* start = get_clock(); called by test after setup */
