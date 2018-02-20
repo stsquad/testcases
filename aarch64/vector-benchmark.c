@@ -557,17 +557,22 @@ int main(int argc, char **argv)
     {
         test = get_test(argv[i]);
 
-        /* start = get_clock(); called by test after setup */
-        ops = test->func(&start);
-        end = get_clock();
-
-        elapsed = end - start;
-
-        if (numbers) {
-            fprintf(stdout, "%s, %ld\n", test->name, elapsed/(ops/1000));
+        if (!test) {
+            fprintf(stderr,"%s: failed to find test\n", __func__, argv[i]);
+            abort();
         } else {
-            fprintf(stdout, "%-20s: test took %ld msec\n", test->name, elapsed/1000);
-            fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop\n", "", ops, elapsed/(ops/1000));
+            /* start = get_clock(); called by test after setup */
+            ops = test->func(&start);
+            end = get_clock();
+
+            elapsed = end - start;
+
+            if (numbers) {
+                fprintf(stdout, "%s, %ld\n", test->name, elapsed/(ops/1000));
+            } else {
+                fprintf(stdout, "%-20s: test took %ld msec\n", test->name, elapsed/1000);
+                fprintf(stdout, "%-20s  %ld ops, ~%ld nsec/kop\n", "", ops, elapsed/(ops/1000));
+            }
         }
     }
 
