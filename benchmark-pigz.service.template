@@ -10,7 +10,7 @@ AllowIsolate=yes
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c "/usr/bin/pigz -c /root/linux-4.5.1.tar > /dev/null"
+ExecStart=/bin/sh -c "/usr/bin/pigz -c /root/linux-5.0.4.tar > /dev/null"
 ExecStartPost=/sbin/poweroff
 
 [Install]
