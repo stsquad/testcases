@@ -40,8 +40,8 @@ $(SUBDIRS):
 # Building systemd units
 %.service: %.service.template Makefile
 	sed -e 's|XXX_TEST_ROOT_XXX|'"${PWD}"'|' $< > $@
-ifeq ($(user),root)
+ifeq ($(USER),root)
 	ln -f -s ${PWD}/$@ /etc/systemd/system
 else
-	@echo "Can't install $@ when not root"
+	@echo "Can't install $@ when not root ($user)"
 endif
